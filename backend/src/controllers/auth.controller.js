@@ -1,5 +1,12 @@
-import { registerCompanyService } from "../services/auth.service.js";
-import { validateRegisterCompany } from "../validators/auth.validator.js";
+import {
+  registerCompanyService,
+  loginService,
+} from "../services/auth.service.js";
+
+import {
+  validateRegisterCompany,
+  validateLogin,
+} from "../validators/auth.validator.js";
 
 export async function registerCompany(req, res) {
   try {
@@ -29,6 +36,32 @@ export async function registerCompany(req, res) {
 
     return res.status(500).json({
       message: "Server error"
+    });
+  }
+}
+
+export async function login(req, res) {
+  try {
+    const errors = validateLogin(req.body);
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors,
+      });
+    }
+
+    const result = await loginService(req.body);
+
+    return res.status(200).json({
+      message: "Login successful",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "Server error",
     });
   }
 }

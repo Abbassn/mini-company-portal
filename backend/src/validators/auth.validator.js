@@ -23,3 +23,17 @@ export function validateRegisterCompany(data) {
 
   return errors;
 }
+
+export function validateLogin(data) {
+  const errors = [];
+
+  if (!data.email) {
+    errors.push("Email is required");
+  }
+
+  if (!data.password) {
+    errors.push("Password is required");
+  }
+
+  return errors;
+}

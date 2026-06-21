@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import pool from "../config/db.js";
+import jwt from "jsonwebtoken";
 
 export async function registerCompanyService(data) {
   const { companyName, fullName, email, password } = data;
@@ -45,4 +46,62 @@ export async function registerCompanyService(data) {
   } finally {
     client.release();
   }
+}
+
+export async function loginService(data) {
+  const { email, password } = data;
+
+  const result = await pool.query(
+    `
+    SELECT 
+      id,
+      company_id,
+      full_name,
+      email,
+      password_hash,
+      role,
+      created_at
+    FROM users
+    WHERE email = $1
+    `,
+    [email]
+  );
+
+  const user = result.rows[0];
+
+  if (!user) {
+    const error = new Error("Invalid email or password");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.password_hash);
+
+  if (!isPasswordCorrect) {
+    const error = new Error("Invalid email or password");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const tokenPayload = {
+    userId: user.id,
+    companyId: user.company_id,
+    role: user.role,
+  };
+
+  const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      company_id: user.company_id,
+      full_name: user.full_name,
+      email: user.email,
+      role: user.role,
+      created_at: user.created_at,
+    },
+  };
 }
