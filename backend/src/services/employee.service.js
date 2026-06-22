@@ -26,6 +26,39 @@ export async function getEmployeesService(currentUser) {
   return result.rows.map(attachSalaryCalculation);
 }
 
+export async function getEmployeeByIdService(employeeId, currentUser) {
+  const result = await pool.query(
+    `
+    SELECT
+      id,
+      company_id,
+      user_id,
+      full_name,
+      department,
+      job_title,
+      base_salary,
+      market_midpoint,
+      working_days,
+      absent_days,
+      created_at
+    FROM employees
+    WHERE id = $1
+    AND company_id = $2
+    `,
+    [employeeId, currentUser.companyId]
+  );
+
+  const employee = result.rows[0];
+
+  if (!employee) {
+    const error = new Error("Employee not found in your company");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return attachSalaryCalculation(employee);
+}
+
 export async function createEmployeeService(data, currentUser) {
   const {
     userId,
@@ -139,3 +172,4 @@ export async function getMyEmployeeProfileService(currentUser) {
 
   return attachSalaryCalculation(employee);
 }
+

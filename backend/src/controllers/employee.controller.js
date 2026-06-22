@@ -1,7 +1,9 @@
 import {
   getEmployeesService,
+  getEmployeeByIdService,
   createEmployeeService,
   getMyEmployeeProfileService,
+  
 } from "../services/employee.service.js";
 
 import { validateCreateEmployee } from "../validators/employee.validator.js";
@@ -16,6 +18,23 @@ export async function getEmployees(req, res) {
     });
   } catch (error) {
     console.error("Get employees error:", error);
+
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "Server error",
+    });
+  }
+}
+
+export async function getEmployeeById(req, res) {
+  try {
+    const employee = await getEmployeeByIdService(req.params.id, req.user);
+
+    return res.status(200).json({
+      message: "Employee fetched successfully",
+      data: employee,
+    });
+  } catch (error) {
+    console.error("Get employee by id error:", error);
 
     return res.status(error.statusCode || 500).json({
       message: error.message || "Server error",

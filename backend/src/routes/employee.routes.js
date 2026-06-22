@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getEmployees,
+  getEmployeeById,
   createEmployee,
   getMyEmployeeProfile,
 } from "../controllers/employee.controller.js";
@@ -15,5 +16,7 @@ router.get("/", authMiddleware, authorizeRoles("ADMIN", "HR"), getEmployees);
 router.post("/", authMiddleware, authorizeRoles("ADMIN", "HR"), createEmployee);
 
 router.get("/me", authMiddleware, authorizeRoles("EMPLOYEE"), getMyEmployeeProfile);
+
+router.get("/:id", authMiddleware, authorizeRoles("ADMIN", "HR"), getEmployeeById);
 
 export default router;
