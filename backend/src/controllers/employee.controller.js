@@ -1,12 +1,15 @@
 import {
   getEmployeesService,
   getEmployeeByIdService,
+  updateEmployeeByIdService,
   createEmployeeService,
   getMyEmployeeProfileService,
-  
 } from "../services/employee.service.js";
 
-import { validateCreateEmployee } from "../validators/employee.validator.js";
+import { 
+    validateCreateEmployee,
+    validateUpdateEmployee,
+} from "../validators/employee.validator.js";
 
 export async function getEmployees(req, res) {
   try {
@@ -35,6 +38,36 @@ export async function getEmployeeById(req, res) {
     });
   } catch (error) {
     console.error("Get employee by id error:", error);
+
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "Server error",
+    });
+  }
+}
+
+export async function updateEmployeeById(req, res) {
+  try {
+    const errors = validateUpdateEmployee(req.body);
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors,
+      });
+    }
+
+    const employee = await updateEmployeeByIdService(
+      req.params.id,
+      req.body,
+      req.user
+    );
+
+    return res.status(200).json({
+      message: "Employee updated successfully",
+      data: employee,
+    });
+  } catch (error) {
+    console.error("Update employee by id error:", error);
 
     return res.status(error.statusCode || 500).json({
       message: error.message || "Server error",

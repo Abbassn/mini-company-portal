@@ -59,6 +59,64 @@ export async function getEmployeeByIdService(employeeId, currentUser) {
   return attachSalaryCalculation(employee);
 }
 
+export async function updateEmployeeByIdService(employeeId, data, currentUser) {
+  const {
+    fullName,
+    department,
+    jobTitle,
+    marketMidpoint,
+    workingDays,
+    absentDays,
+  } = data;
+
+  const result = await pool.query(
+    `
+    UPDATE employees
+    SET
+      full_name = COALESCE($1, full_name),
+      department = COALESCE($2, department),
+      job_title = COALESCE($3, job_title),
+      market_midpoint = COALESCE($4, market_midpoint),
+      working_days = COALESCE($5, working_days),
+      absent_days = COALESCE($6, absent_days)
+    WHERE id = $7
+    AND company_id = $8
+    RETURNING
+      id,
+      company_id,
+      user_id,
+      full_name,
+      department,
+      job_title,
+      base_salary,
+      market_midpoint,
+      working_days,
+      absent_days,
+      created_at
+    `,
+    [
+      fullName,
+      department,
+      jobTitle,
+      marketMidpoint,
+      workingDays,
+      absentDays,
+      employeeId,
+      currentUser.companyId,
+    ]
+  );
+
+  const employee = result.rows[0];
+
+  if (!employee) {
+    const error = new Error("Employee not found in your company");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return attachSalaryCalculation(employee);
+}
+
 export async function createEmployeeService(data, currentUser) {
   const {
     userId,

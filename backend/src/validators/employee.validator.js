@@ -31,3 +31,116 @@ export function validateCreateEmployee(data) {
 
   return errors;
 }
+
+export async function updateEmployeeByIdService(employeeId, data, currentUser) {
+  const {
+    fullName,
+    department,
+    jobTitle,
+    marketMidpoint,
+    workingDays,
+    absentDays,
+  } = data;
+
+  const result = await pool.query(
+    `
+    UPDATE employees
+    SET
+      full_name = COALESCE($1, full_name),
+      department = COALESCE($2, department),
+      job_title = COALESCE($3, job_title),
+      market_midpoint = COALESCE($4, market_midpoint),
+      working_days = COALESCE($5, working_days),
+      absent_days = COALESCE($6, absent_days)
+    WHERE id = $7
+    AND company_id = $8
+    RETURNING
+      id,
+      company_id,
+      user_id,
+      full_name,
+      department,
+      job_title,
+      base_salary,
+      market_midpoint,
+      working_days,
+      absent_days,
+      created_at
+    `,
+    [
+      fullName,
+      department,
+      jobTitle,
+      marketMidpoint,
+      workingDays,
+      absentDays,
+      employeeId,
+      currentUser.companyId,
+    ]
+  );
+
+  const employee = result.rows[0];
+
+  if (!employee) {
+    const error = new Error("Employee not found in your company");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return attachSalaryCalculation(employee);
+}
+
+export function validateUpdateEmployee(data) {
+  const errors = [];
+
+  const allowedFields = [
+    "fullName",
+    "department",
+    "jobTitle",
+    "marketMidpoint",
+    "workingDays",
+    "absentDays",
+  ];
+
+  const hasAtLeastOneField = allowedFields.some(
+    (field) => data[field] !== undefined
+  );
+
+  if (!hasAtLeastOneField) {
+    errors.push("At least one field is required to update");
+  }
+
+  if (data.baseSalary !== undefined) {
+    errors.push("Base salary cannot be updated directly. Use salary review flow");
+  }
+
+  if (data.userId !== undefined) {
+    errors.push("User account link cannot be updated from this endpoint");
+  }
+
+  if (data.fullName !== undefined && data.fullName.trim() === "") {
+    errors.push("Full name cannot be empty");
+  }
+
+  if (data.department !== undefined && data.department.trim() === "") {
+    errors.push("Department cannot be empty");
+  }
+
+  if (data.jobTitle !== undefined && data.jobTitle.trim() === "") {
+    errors.push("Job title cannot be empty");
+  }
+
+  if (data.marketMidpoint !== undefined && Number(data.marketMidpoint) <= 0) {
+    errors.push("Market midpoint must be greater than 0");
+  }
+
+  if (data.workingDays !== undefined && Number(data.workingDays) <= 0) {
+    errors.push("Working days must be greater than 0");
+  }
+
+  if (data.absentDays !== undefined && Number(data.absentDays) < 0) {
+    errors.push("Absent days must be 0 or greater");
+  }
+
+  return errors;
+}
