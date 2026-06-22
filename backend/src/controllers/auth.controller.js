@@ -1,6 +1,7 @@
 import {
   registerCompanyService,
   loginService,
+  getCurrentUserService,
 } from "../services/auth.service.js";
 
 import {
@@ -59,6 +60,23 @@ export async function login(req, res) {
     });
   } catch (error) {
     console.error("Login error:", error);
+
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "Server error",
+    });
+  }
+}
+
+export async function getMe(req, res) {
+  try {
+    const user = await getCurrentUserService(req.user.userId);
+
+    return res.status(200).json({
+      message: "User fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Get me error:", error);
 
     return res.status(error.statusCode || 500).json({
       message: error.message || "Server error",

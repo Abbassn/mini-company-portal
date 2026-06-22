@@ -105,3 +105,30 @@ export async function loginService(data) {
     },
   };
 }
+
+export async function getCurrentUserService(userId) {
+  const result = await pool.query(
+    `
+    SELECT
+      id,
+      company_id,
+      full_name,
+      email,
+      role,
+      created_at
+    FROM users
+    WHERE id = $1
+    `,
+    [userId]
+  );
+
+  const user = result.rows[0];
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return user;
+}
