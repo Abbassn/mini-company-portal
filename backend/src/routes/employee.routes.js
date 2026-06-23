@@ -43,7 +43,7 @@ router.get("/", authMiddleware, authorizeRoles("ADMIN", "HR"), getEmployees);
  *       - Employees
  *     security:
  *       - bearerAuth: []
- *     description: "ADMIN and HR only. Protected API that uses Authorization: Bearer <token>. The JWT payload contains userId, companyId, and role, and the employee is created in the authenticated user's company."
+ *     description: "ADMIN and HR can create employee profiles. The employee profile must be linked to an existing EMPLOYEE user in the authenticated user's company. The ADMIN should create the EMPLOYEE user first using POST /api/users."
  *     requestBody:
  *       required: true
  *       content:
@@ -62,7 +62,7 @@ router.get("/", authMiddleware, authorizeRoles("ADMIN", "HR"), getEmployees);
  *             properties:
  *               userId:
  *                 type: integer
- *                 example: 3
+ *                 example: 6
  *               fullName:
  *                 type: string
  *                 example: Employee User
@@ -84,15 +84,26 @@ router.get("/", authMiddleware, authorizeRoles("ADMIN", "HR"), getEmployees);
  *               absentDays:
  *                 type: integer
  *                 example: 1
+ *           example:
+ *             userId: 6
+ *             fullName: Employee User
+ *             department: IT
+ *             jobTitle: Developer
+ *             baseSalary: 1000
+ *             marketMidpoint: 1200
+ *             workingDays: 22
+ *             absentDays: 1
  *     responses:
  *       201:
  *         description: Employee created successfully
  *       400:
- *         description: Validation failed or bad request
+ *         description: Validation failed, invalid userId, or linked user is not EMPLOYEE
  *       401:
  *         description: Missing or invalid token
  *       403:
  *         description: Forbidden role
+ *       404:
+ *         description: Employee user account not found in authenticated user's company
  *       500:
  *         description: Server error
  */

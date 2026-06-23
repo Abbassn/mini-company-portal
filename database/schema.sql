@@ -33,7 +33,7 @@ CREATE TABLE users (
 CREATE TABLE employees (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     company_id BIGINT NOT NULL,
-    user_id BIGINT UNIQUE,
+    user_id BIGINT NOT NULL UNIQUE,
     full_name VARCHAR(150) NOT NULL,
     department VARCHAR(100) NOT NULL,
     job_title VARCHAR(100) NOT NULL,

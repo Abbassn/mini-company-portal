@@ -1,6 +1,23 @@
 export function validateCreateEmployee(data) {
   const errors = [];
 
+  if (data.user_id !== undefined) {
+    errors.push("Use userId, not user_id");
+  }
+
+  if (data.userId === undefined || data.userId === null || data.userId === "") {
+    errors.push("Employee userId is required");
+  }
+
+  if (
+    data.userId !== undefined &&
+    data.userId !== null &&
+    data.userId !== "" &&
+    (!Number.isInteger(Number(data.userId)) || Number(data.userId) <= 0)
+  ) {
+    errors.push("Employee userId must be a valid user id");
+  }
+
   if (!data.fullName) {
     errors.push("Full name is required");
   }

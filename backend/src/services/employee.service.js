@@ -129,30 +129,28 @@ export async function createEmployeeService(data, currentUser) {
     absentDays,
   } = data;
 
-  if (userId) {
-    const userResult = await pool.query(
-      `
-      SELECT id, role
-      FROM users
-      WHERE id = $1
-      AND company_id = $2
-      `,
-      [userId, currentUser.companyId]
-    );
+  const userResult = await pool.query(
+    `
+    SELECT id, role
+    FROM users
+    WHERE id = $1
+    AND company_id = $2
+    `,
+    [userId, currentUser.companyId]
+  );
 
-    const user = userResult.rows[0];
+  const user = userResult.rows[0];
 
-    if (!user) {
-      const error = new Error("User account not found in your company");
-      error.statusCode = 404;
-      throw error;
-    }
+  if (!user) {
+    const error = new Error("Employee user account not found in your company");
+    error.statusCode = 404;
+    throw error;
+  }
 
-    if (user.role !== "EMPLOYEE") {
-      const error = new Error("Employee profile can only be linked to an EMPLOYEE user");
-      error.statusCode = 400;
-      throw error;
-    }
+  if (user.role !== "EMPLOYEE") {
+    const error = new Error("Employee profile can only be linked to an EMPLOYEE user");
+    error.statusCode = 400;
+    throw error;
   }
 
   const result = await pool.query(
@@ -184,7 +182,7 @@ export async function createEmployeeService(data, currentUser) {
     `,
     [
       currentUser.companyId,
-      userId || null,
+      userId,
       fullName,
       department,
       jobTitle,
