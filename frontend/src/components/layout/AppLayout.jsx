@@ -1,6 +1,14 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { clearAuthData } from "../../auth/authStorage";
 
 function AppLayout() {
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    clearAuthData();
+    navigate("/login");
+  }
+
   return (
     <div className="app">
       <header className="navbar">
@@ -11,6 +19,10 @@ function AppLayout() {
           <Link to="/employees">Employees</Link>
           <Link to="/salary-reviews">Salary Reviews</Link>
           <Link to="/profile">Profile</Link>
+
+          <button type="button" onClick={handleLogout} className="logout-button">
+            Logout
+          </button>
         </nav>
       </header>
 

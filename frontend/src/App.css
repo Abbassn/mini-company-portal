@@ -28,3 +28,10 @@
 .page {
   padding: 32px;
 }
+.logout-button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+}
