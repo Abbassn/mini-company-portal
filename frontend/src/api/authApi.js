@@ -5,3 +5,9 @@ export async function loginUser(credentials) {
 
   return response.data.data;
 }
+
+export async function getCurrentUser() {
+  const response = await axiosClient.get("/auth/me");
+
+  return response.data.data;
+}
