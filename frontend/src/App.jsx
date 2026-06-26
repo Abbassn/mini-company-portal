@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "./components/layout/AppLayout";
+import ProtectedRoute from "./auth/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import EmployeeDetailsPage from "./pages/EmployeeDetailsPage";
 import EmployeesPage from "./pages/EmployeesPage";
@@ -16,12 +17,14 @@ function App() {
 
       <Route path="/login" element={<LoginPage />} />
 
-      <Route element={<AppLayout />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/employees" element={<EmployeesPage />} />
-        <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
-        <Route path="/salary-reviews" element={<SalaryReviewsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/employees" element={<EmployeesPage />} />
+          <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
+          <Route path="/salary-reviews" element={<SalaryReviewsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
