@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getEmployees } from "../api/employeesApi";
 
 function EmployeesPage() {
@@ -53,8 +54,12 @@ function EmployeesPage() {
         <ul>
           {employees.map((employee) => (
             <li key={employee.id}>
-              <strong>{employee.full_name}</strong> — {employee.job_title} —{" "}
-              {employee.department}
+              <strong>
+                <Link to={`/employees/${employee.id}`}>
+                  {employee.full_name}
+                </Link>
+              </strong>{" "}
+              - {employee.job_title} - {employee.department}
             </li>
           ))}
         </ul>
