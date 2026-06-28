@@ -5,3 +5,9 @@ export async function getEmployees() {
 
   return response.data.data;
 }
+
+export async function getEmployeeById(id) {
+  const response = await axiosClient.get(`/employees/${id}`);
+
+  return response.data.data;
+}
