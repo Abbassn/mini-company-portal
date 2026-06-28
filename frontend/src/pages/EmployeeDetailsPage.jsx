@@ -171,8 +171,12 @@ function EmployeeDetailsPage() {
   if (isLoading) {
     return (
       <section>
-        <h2>Employee Details</h2>
-        <p>Loading employee...</p>
+        <div className="page-header">
+          <h2>Employee Details</h2>
+        </div>
+        <div className="card">
+          <p>Loading employee...</p>
+        </div>
       </section>
     );
   }
@@ -180,185 +184,207 @@ function EmployeeDetailsPage() {
   if (!employee) {
     return (
       <section>
-        <h2>Employee Details</h2>
-        {errors.map((error) => (
-          <p key={error}>{error}</p>
-        ))}
-        <Link to="/employees">Back to employees</Link>
+        <div className="page-header">
+          <h2>Employee Details</h2>
+        </div>
+        {errors.length > 0 && (
+          <div className="alert alert-error">
+            {errors.map((error) => (
+              <p key={error}>{error}</p>
+            ))}
+          </div>
+        )}
+        <Link to="/employees" className="button button-secondary">
+          Back to employees
+        </Link>
       </section>
     );
   }
 
   return (
     <section>
-      <h2>Employee Details</h2>
+      <div className="page-header">
+        <h2>Employee Details</h2>
+        <p>
+          <Link to="/employees" className="button button-secondary">
+            Back to employees
+          </Link>
+        </p>
+      </div>
 
-      <p>
-        <Link to="/employees">Back to employees</Link>
-      </p>
-
-      {successMessage && <p>{successMessage}</p>}
+      {successMessage && (
+        <div className="alert alert-success">
+          <p>{successMessage}</p>
+        </div>
+      )}
 
       {errors.length > 0 && (
-        <div>
+        <div className="alert alert-error">
           {errors.map((error) => (
             <p key={error}>{error}</p>
           ))}
         </div>
       )}
 
-      <h3>Basic Info</h3>
+      <div className="grid">
+        <div className="card">
+          <h3>Basic Info</h3>
 
-      <p>
-        <strong>Name:</strong> {employee.full_name}
-      </p>
+          <div className="label-value">
+            <strong>Name</strong>
+            <span>{employee.full_name}</span>
+          </div>
 
-      <p>
-        <strong>Department:</strong> {employee.department}
-      </p>
+          <div className="label-value">
+            <strong>Department</strong>
+            <span>{employee.department}</span>
+          </div>
 
-      <p>
-        <strong>Job Title:</strong> {employee.job_title}
-      </p>
+          <div className="label-value">
+            <strong>Job Title</strong>
+            <span>{employee.job_title}</span>
+          </div>
+        </div>
 
-      <h3>Salary Info</h3>
+        <div className="card">
+          <h3>Salary Info</h3>
 
-      <p>
-        <strong>Base Salary:</strong> {employee.base_salary}
-      </p>
+          <div className="label-value">
+            <strong>Base Salary</strong>
+            <span>{employee.base_salary}</span>
+          </div>
 
-      <p>
-        <strong>Market Midpoint:</strong> {employee.market_midpoint}
-      </p>
+          <div className="label-value">
+            <strong>Market Midpoint</strong>
+            <span>{employee.market_midpoint}</span>
+          </div>
 
-      <p>
-        <strong>Working Days:</strong> {employee.working_days}
-      </p>
+          <div className="label-value">
+            <strong>Working Days</strong>
+            <span>{employee.working_days}</span>
+          </div>
 
-      <p>
-        <strong>Absent Days:</strong> {employee.absent_days}
-      </p>
+          <div className="label-value">
+            <strong>Absent Days</strong>
+            <span>{employee.absent_days}</span>
+          </div>
+        </div>
 
-      <h3>Salary Calculation</h3>
+        <div className="card">
+          <h3>Salary Calculation</h3>
 
-      <p>
-        <strong>Compa-Ratio:</strong>{" "}
-        {employee.salary_calculation?.compaRatio ?? "N/A"}%
-      </p>
+          <div className="label-value">
+            <strong>Compa-Ratio</strong>
+            <span>{employee.salary_calculation?.compaRatio ?? "N/A"}%</span>
+          </div>
 
-      <p>
-        <strong>Daily Salary:</strong>{" "}
-        {employee.salary_calculation?.dailySalary ?? "N/A"}
-      </p>
+          <div className="label-value">
+            <strong>Daily Salary</strong>
+            <span>{employee.salary_calculation?.dailySalary ?? "N/A"}</span>
+          </div>
 
-      <p>
-        <strong>Deduction:</strong>{" "}
-        {employee.salary_calculation?.deduction ?? "N/A"}
-      </p>
+          <div className="label-value">
+            <strong>Deduction</strong>
+            <span>{employee.salary_calculation?.deduction ?? "N/A"}</span>
+          </div>
 
-      <p>
-        <strong>Final Salary:</strong>{" "}
-        {employee.salary_calculation?.finalSalary ?? "N/A"}
-      </p>
+          <div className="label-value">
+            <strong>Final Salary</strong>
+            <span>{employee.salary_calculation?.finalSalary ?? "N/A"}</span>
+          </div>
+        </div>
+      </div>
 
       {canUpdateEmployee && (
-        <form onSubmit={handleSubmit} noValidate>
-          <h3>Update Employee Profile</h3>
+        <div className="card">
+          <form onSubmit={handleSubmit} noValidate>
+            <h3>Update Employee Profile</h3>
 
-          <div>
-            <label htmlFor="fullName">Full Name</label>
-            <br />
-            <input
-              id="fullName"
-              name="fullName"
-              type="text"
-              value={formData.fullName}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="fullName">Full Name</label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <br />
+              <div className="form-group">
+                <label htmlFor="department">Department</label>
+                <input
+                  id="department"
+                  name="department"
+                  type="text"
+                  value={formData.department}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <div>
-            <label htmlFor="department">Department</label>
-            <br />
-            <input
-              id="department"
-              name="department"
-              type="text"
-              value={formData.department}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="jobTitle">Job Title</label>
+                <input
+                  id="jobTitle"
+                  name="jobTitle"
+                  type="text"
+                  value={formData.jobTitle}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <br />
+              <div className="form-group">
+                <label htmlFor="marketMidpoint">Market Midpoint</label>
+                <input
+                  id="marketMidpoint"
+                  name="marketMidpoint"
+                  type="number"
+                  value={formData.marketMidpoint}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <div>
-            <label htmlFor="jobTitle">Job Title</label>
-            <br />
-            <input
-              id="jobTitle"
-              name="jobTitle"
-              type="text"
-              value={formData.jobTitle}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="workingDays">Working Days</label>
+                <input
+                  id="workingDays"
+                  name="workingDays"
+                  type="number"
+                  value={formData.workingDays}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <br />
+              <div className="form-group">
+                <label htmlFor="absentDays">Absent Days</label>
+                <input
+                  id="absentDays"
+                  name="absentDays"
+                  type="number"
+                  value={formData.absentDays}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
 
-          <div>
-            <label htmlFor="marketMidpoint">Market Midpoint</label>
-            <br />
-            <input
-              id="marketMidpoint"
-              name="marketMidpoint"
-              type="number"
-              value={formData.marketMidpoint}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="workingDays">Working Days</label>
-            <br />
-            <input
-              id="workingDays"
-              name="workingDays"
-              type="number"
-              value={formData.workingDays}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="absentDays">Absent Days</label>
-            <br />
-            <input
-              id="absentDays"
-              name="absentDays"
-              type="number"
-              value={formData.absentDays}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Updating..." : "Update Employee Profile"}
-          </button>
-        </form>
+            <div className="form-actions">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="button button-primary"
+              >
+                {isSubmitting ? "Updating..." : "Update Employee Profile"}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </section>
   );

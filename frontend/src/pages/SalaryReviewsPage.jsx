@@ -42,6 +42,18 @@ function getErrorMessages(error) {
   ];
 }
 
+function getStatusBadgeClass(status) {
+  if (status === "APPROVED") {
+    return "badge badge-approved";
+  }
+
+  if (status === "REJECTED") {
+    return "badge badge-rejected";
+  }
+
+  return "badge badge-pending";
+}
+
 function SalaryReviewsPage() {
   const user = getUser();
   const role = user?.role;
@@ -112,37 +124,36 @@ function SalaryReviewsPage() {
   }
 
   async function handleSubmit(event) {
-  event.preventDefault();
+    event.preventDefault();
 
+    setErrors([]);
+    setMessage("");
 
-  setErrors([]);
-  setMessage("");
+    const proposedSalary = Number(formData.proposedSalary);
+    const employeeId = Number(formData.employeeId);
+    const reason = formData.reason.trim();
+    const validationErrors = [];
 
-  const proposedSalary = Number(formData.proposedSalary);
-  const employeeId = Number(formData.employeeId);
-  const reason = formData.reason.trim();
-  const validationErrors = [];
+    if (!formData.employeeId) {
+      validationErrors.push("Employee is required.");
+    } else if (!Number.isFinite(employeeId) || employeeId <= 0) {
+      validationErrors.push("Employee must be valid.");
+    }
 
-  if (!formData.employeeId) {
-    validationErrors.push("Employee is required.");
-  } else if (!Number.isFinite(employeeId) || employeeId <= 0) {
-    validationErrors.push("Employee must be valid.");
-  }
+    if (!formData.proposedSalary) {
+      validationErrors.push("Proposed salary is required.");
+    } else if (!Number.isFinite(proposedSalary) || proposedSalary <= 0) {
+      validationErrors.push("Proposed salary must be greater than 0.");
+    }
 
-  if (!formData.proposedSalary) {
-    validationErrors.push("Proposed salary is required.");
-  } else if (!Number.isFinite(proposedSalary) || proposedSalary <= 0) {
-    validationErrors.push("Proposed salary must be greater than 0.");
-  }
+    if (!reason) {
+      validationErrors.push("Reason is required.");
+    }
 
-  if (!reason) {
-    validationErrors.push("Reason is required.");
-  }
-
-  if (validationErrors.length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -196,20 +207,33 @@ function SalaryReviewsPage() {
   if (isLoading) {
     return (
       <section>
-        <h2>Salary Reviews</h2>
-        <p>Loading salary reviews...</p>
+        <div className="page-header">
+          <h2>Salary Reviews</h2>
+        </div>
+        <div className="card">
+          <p>Loading salary reviews...</p>
+        </div>
       </section>
     );
   }
 
   return (
     <section>
-      <h2>Salary Reviews</h2>
+      <div className="page-header">
+        <h2>Salary Reviews</h2>
+        <p className="muted">
+          Review proposed salary changes and track approval status.
+        </p>
+      </div>
 
-      {message && <p>{message}</p>}
+      {message && (
+        <div className="alert alert-success">
+          <p>{message}</p>
+        </div>
+      )}
 
       {errors.length > 0 && (
-        <div>
+        <div className="alert alert-error">
           {errors.map((error) => (
             <p key={error}>{error}</p>
           ))}
@@ -217,131 +241,131 @@ function SalaryReviewsPage() {
       )}
 
       {canCreateReview && (
-        <form onSubmit={handleSubmit} noValidate>
-          <h3>Create Salary Review</h3>
+        <div className="card">
+          <form onSubmit={handleSubmit} noValidate>
+            <h3>Create Salary Review</h3>
 
-          <div>
-            <label htmlFor="employeeId">Employee</label>
-            <br />
-            <select
-              id="employeeId"
-              name="employeeId"
-              value={formData.employeeId}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select an employee</option>
-              {employees.map((employee) => (
-                <option key={employee.id} value={employee.id}>
-                  {employee.full_name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="employeeId">Employee</label>
+                <select
+                  id="employeeId"
+                  name="employeeId"
+                  value={formData.employeeId}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select an employee</option>
+                  {employees.map((employee) => (
+                    <option key={employee.id} value={employee.id}>
+                      {employee.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <br />
+              <div className="form-group">
+                <label htmlFor="proposedSalary">Proposed Salary</label>
+                <input
+                  id="proposedSalary"
+                  name="proposedSalary"
+                  type="number"
+                  value={formData.proposedSalary}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <div>
-            <label htmlFor="proposedSalary">Proposed Salary</label>
-            <br />
-            <input
-              id="proposedSalary"
-              name="proposedSalary"
-              type="number"
-              value={formData.proposedSalary}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="reason">Reason</label>
+                <textarea
+                  id="reason"
+                  name="reason"
+                  value={formData.reason}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
 
-          <br />
-
-          <div>
-            <label htmlFor="reason">Reason</label>
-            <br />
-            <textarea
-              id="reason"
-              name="reason"
-              value={formData.reason}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Salary Review"}
-          </button>
-        </form>
+            <div className="form-actions">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="button button-primary"
+              >
+                {isSubmitting ? "Creating..." : "Create Salary Review"}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
-      <h3>Reviews</h3>
+      <div className="card">
+        <h3>Reviews</h3>
 
-      {reviews.length === 0 ? (
-        <p>No salary reviews found.</p>
-      ) : (
-        <ul>
-          {reviews.map((review) => (
-            <li key={review.id}>
-              <p>
-                <strong>Employee:</strong> {review.employee_name}
-              </p>
-              <p>
-                <strong>Department:</strong> {review.department}
-              </p>
-              <p>
-                <strong>Job Title:</strong> {review.job_title}
-              </p>
-              <p>
-                <strong>Old Salary:</strong> {review.old_salary}
-              </p>
-              <p>
-                <strong>Proposed Salary:</strong> {review.proposed_salary}
-              </p>
-              <p>
-                <strong>Reason:</strong> {review.reason}
-              </p>
-              <p>
-                <strong>Status:</strong> {review.status}
-              </p>
-              <p>
-                <strong>Created At:</strong> {review.created_at}
-              </p>
-              <p>
-                <strong>Increase Amount:</strong>{" "}
-                {review.review_calculation?.increaseAmount}
-              </p>
-              <p>
-                <strong>Increase Percent:</strong>{" "}
-                {review.review_calculation?.increasePercent}
-              </p>
-              <p>
-                <strong>Old Compa Ratio:</strong>{" "}
-                {review.review_calculation?.oldCompaRatio}
-              </p>
-              <p>
-                <strong>Proposed Compa Ratio:</strong>{" "}
-                {review.review_calculation?.proposedCompaRatio}
-              </p>
-
-              {canApproveOrReject && review.status === "PENDING" && (
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => handleApprove(review.id)}
-                  >
-                    Approve
-                  </button>{" "}
-                  <button type="button" onClick={() => handleReject(review.id)}>
-                    Reject
-                  </button>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+        {reviews.length === 0 ? (
+          <div className="empty-state">No salary reviews found.</div>
+        ) : (
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Job Title</th>
+                  <th>Old Salary</th>
+                  <th>Proposed Salary</th>
+                  <th>Increase %</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reviews.map((review) => (
+                  <tr key={review.id}>
+                    <td>
+                      <strong>{review.employee_name}</strong>
+                      <br />
+                      <span className="muted">{review.department}</span>
+                    </td>
+                    <td>{review.job_title}</td>
+                    <td>{review.old_salary}</td>
+                    <td>{review.proposed_salary}</td>
+                    <td>{review.review_calculation?.increasePercent ?? "N/A"}</td>
+                    <td>
+                      <span className={getStatusBadgeClass(review.status)}>
+                        {review.status}
+                      </span>
+                    </td>
+                    <td>
+                      {canApproveOrReject && review.status === "PENDING" ? (
+                        <div className="actions">
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(review.id)}
+                            className="button button-primary"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleReject(review.id)}
+                            className="button button-danger"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="muted">No actions</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

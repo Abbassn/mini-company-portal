@@ -46,47 +46,53 @@ function LoginPage() {
   }
 
   return (
-    <section>
-      <h1>Login</h1>
-      <p>Sign in to access the company portal.</p>
-
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <br />
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+    <section className="login-page">
+      <div className="card login-card">
+        <div className="page-header">
+          <h1>Login</h1>
+          <p className="muted">Sign in to access the company portal.</p>
         </div>
 
-        <br />
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="password">Password</label>
           <br />
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
 
-        <br />
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        {error && <p>{error}</p>}
+          <br />
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          {error && <div className="alert alert-error">{error}</div>}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="button button-primary"
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+      </div>
     </section>
   );
 }

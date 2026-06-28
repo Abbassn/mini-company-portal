@@ -23,18 +23,26 @@ function DashboardPage() {
 
   return (
     <section>
-      <h2>Dashboard</h2>
+      <div className="page-header">
+        <h2>Dashboard</h2>
+        <p className="muted">
+          A quick view of the actions available for your role.
+        </p>
+      </div>
 
       {role && <h3>{role} Dashboard</h3>}
 
       {items.length > 0 ? (
-        <ul>
+        <div className="grid">
           {items.map((item) => (
-            <li key={item}>{item}</li>
+            <div className="card" key={item}>
+              <h3>{item}</h3>
+              <p className="muted">Available from the portal navigation.</p>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
-        <p>No dashboard options available.</p>
+        <div className="empty-state">No dashboard options available.</div>
       )}
     </section>
   );

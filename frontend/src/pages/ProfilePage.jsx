@@ -28,8 +28,12 @@ function ProfilePage() {
   if (isLoading) {
     return (
       <section>
-        <h1>Profile</h1>
-        <p>Loading profile...</p>
+        <div className="page-header">
+          <h1>Profile</h1>
+        </div>
+        <div className="card">
+          <p>Loading profile...</p>
+        </div>
       </section>
     );
   }
@@ -37,31 +41,42 @@ function ProfilePage() {
   if (error) {
     return (
       <section>
-        <h1>Profile</h1>
-        <p>{error}</p>
+        <div className="page-header">
+          <h1>Profile</h1>
+        </div>
+        <div className="alert alert-error">{error}</div>
       </section>
     );
   }
 
   return (
     <section>
-      <h1>Profile</h1>
+      <div className="page-header">
+        <h1>Profile</h1>
+        <p className="muted">Your account details for this company portal.</p>
+      </div>
 
-      <p>
-        <strong>Name:</strong> {user.full_name}
-      </p>
+      <div className="card">
+        <div className="label-value">
+          <strong>Name</strong>
+          <span>{user.full_name}</span>
+        </div>
 
-      <p>
-        <strong>Email:</strong> {user.email}
-      </p>
+        <div className="label-value">
+          <strong>Email</strong>
+          <span>{user.email}</span>
+        </div>
 
-      <p>
-        <strong>Role:</strong> {user.role}
-      </p>
+        <div className="label-value">
+          <strong>Role</strong>
+          <span>{user.role}</span>
+        </div>
 
-      <p>
-        <strong>Company ID:</strong> {user.company_id}
-      </p>
+        <div className="label-value">
+          <strong>Company ID</strong>
+          <span>{user.company_id}</span>
+        </div>
+      </div>
     </section>
   );
 }

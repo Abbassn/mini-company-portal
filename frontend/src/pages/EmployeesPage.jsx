@@ -38,6 +38,17 @@ function getErrorMessages(error, fallbackMessage) {
   ];
 }
 
+const initialEmployeeFormData = {
+  userId: "",
+  fullName: "",
+  department: "",
+  jobTitle: "",
+  baseSalary: "",
+  marketMidpoint: "",
+  workingDays: "22",
+  absentDays: "0",
+};
+
 function EmployeesPage() {
   const user = getUser();
   const canCreateUser = user?.role === "ADMIN";
@@ -55,16 +66,9 @@ function EmployeesPage() {
     password: "",
     role: "EMPLOYEE",
   });
-  const [employeeFormData, setEmployeeFormData] = useState({
-    userId: "",
-    fullName: "",
-    department: "",
-    jobTitle: "",
-    baseSalary: "",
-    marketMidpoint: "",
-    workingDays: "",
-    absentDays: "",
-  });
+  const [employeeFormData, setEmployeeFormData] = useState(
+    initialEmployeeFormData
+  );
 
   const loadEmployees = useCallback(async () => {
     const employeesData = await getEmployees();
@@ -201,8 +205,9 @@ function EmployeesPage() {
     setIsCreatingUser(true);
 
     try {
+      const submittedFullName = userFormData.fullName.trim();
       const createdUser = await createUser({
-        fullName: userFormData.fullName.trim(),
+        fullName: submittedFullName,
         email: userFormData.email.trim(),
         password: userFormData.password,
         role: userFormData.role,
@@ -214,6 +219,13 @@ function EmployeesPage() {
         email: "",
         password: "",
         role: "EMPLOYEE",
+      });
+      setEmployeeFormData({
+        ...employeeFormData,
+        userId: String(createdUser.id),
+        fullName: createdUser.full_name || createdUser.fullName || submittedFullName,
+        workingDays: "22",
+        absentDays: "0",
       });
     } catch (error) {
       setErrors(getErrorMessages(error, "Failed to create user."));
@@ -249,16 +261,7 @@ function EmployeesPage() {
       });
 
       setSuccessMessage("Employee profile created successfully.");
-      setEmployeeFormData({
-        userId: "",
-        fullName: "",
-        department: "",
-        jobTitle: "",
-        baseSalary: "",
-        marketMidpoint: "",
-        workingDays: "",
-        absentDays: "",
-      });
+      setEmployeeFormData(initialEmployeeFormData);
       await loadEmployees();
     } catch (error) {
       setErrors(getErrorMessages(error, "Failed to create employee profile."));
@@ -270,246 +273,268 @@ function EmployeesPage() {
   if (isLoading) {
     return (
       <section>
-        <h2>Employees</h2>
-        <p>Loading employees...</p>
+        <div className="page-header">
+          <h2>Employees</h2>
+        </div>
+        <div className="card">
+          <p>Loading employees...</p>
+        </div>
       </section>
     );
   }
 
   return (
     <section>
-      <h2>Employees</h2>
+      <div className="page-header">
+        <h2>Employees</h2>
+        <p className="muted">
+          Manage company users and employee profiles from one place.
+        </p>
+      </div>
 
-      {successMessage && <p>{successMessage}</p>}
+      {successMessage && (
+        <div className="alert alert-success">
+          <p>{successMessage}</p>
+        </div>
+      )}
 
       {errors.length > 0 && (
-        <div>
+        <div className="alert alert-error">
           {errors.map((error) => (
             <p key={error}>{error}</p>
           ))}
         </div>
       )}
 
-      {canCreateUser && (
-        <form onSubmit={handleCreateUser} noValidate>
-          <h3>Create User</h3>
-
-          <div>
-            <label htmlFor="userFullName">Full Name</label>
-            <br />
-            <input
-              id="userFullName"
-              name="fullName"
-              type="text"
-              value={userFormData.fullName}
-              onChange={handleUserFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="userEmail">Email</label>
-            <br />
-            <input
-              id="userEmail"
-              name="email"
-              type="email"
-              value={userFormData.email}
-              onChange={handleUserFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="userPassword">Password</label>
-            <br />
-            <input
-              id="userPassword"
-              name="password"
-              type="password"
-              value={userFormData.password}
-              onChange={handleUserFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="userRole">Role</label>
-            <br />
-            <select
-              id="userRole"
-              name="role"
-              value={userFormData.role}
-              onChange={handleUserFormChange}
-              required
-            >
-              <option value="EMPLOYEE">EMPLOYEE</option>
-              <option value="HR">HR</option>
-            </select>
-          </div>
-
-          <br />
-
-          <button type="submit" disabled={isCreatingUser}>
-            {isCreatingUser ? "Creating..." : "Create User"}
-          </button>
-        </form>
-      )}
-
       {canManageEmployees && (
-        <form onSubmit={handleCreateEmployee} noValidate>
-          <h3>Create Employee Profile</h3>
+        <div className="grid">
+          {canCreateUser && (
+            <div className="card">
+              <form onSubmit={handleCreateUser} noValidate>
+                <h3>Create User</h3>
 
-          <div>
-            <label htmlFor="employeeUserId">User ID</label>
-            <br />
-            <input
-              id="employeeUserId"
-              name="userId"
-              type="number"
-              value={employeeFormData.userId}
-              onChange={handleEmployeeFormChange}
-              required
-            />
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="userFullName">Full Name</label>
+                    <input
+                      id="userFullName"
+                      name="fullName"
+                      type="text"
+                      value={userFormData.fullName}
+                      onChange={handleUserFormChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="userEmail">Email</label>
+                    <input
+                      id="userEmail"
+                      name="email"
+                      type="email"
+                      value={userFormData.email}
+                      onChange={handleUserFormChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="userPassword">Password</label>
+                    <input
+                      id="userPassword"
+                      name="password"
+                      type="password"
+                      value={userFormData.password}
+                      onChange={handleUserFormChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="userRole">Role</label>
+                    <select
+                      id="userRole"
+                      name="role"
+                      value={userFormData.role}
+                      onChange={handleUserFormChange}
+                      required
+                    >
+                      <option value="EMPLOYEE">EMPLOYEE</option>
+                      <option value="HR">HR</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    type="submit"
+                    disabled={isCreatingUser}
+                    className="button button-primary"
+                  >
+                    {isCreatingUser ? "Creating..." : "Create User"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div className="card">
+            <form onSubmit={handleCreateEmployee} noValidate>
+              <h3>Create Employee Profile</h3>
+
+              <div className="form-grid">
+                <div className="form-group">
+                  <label htmlFor="employeeUserId">User ID</label>
+                  <input
+                    id="employeeUserId"
+                    name="userId"
+                    type="number"
+                    value={employeeFormData.userId}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeFullName">Full Name</label>
+                  <input
+                    id="employeeFullName"
+                    name="fullName"
+                    type="text"
+                    value={employeeFormData.fullName}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeDepartment">Department</label>
+                  <input
+                    id="employeeDepartment"
+                    name="department"
+                    type="text"
+                    value={employeeFormData.department}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeJobTitle">Job Title</label>
+                  <input
+                    id="employeeJobTitle"
+                    name="jobTitle"
+                    type="text"
+                    value={employeeFormData.jobTitle}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeBaseSalary">Base Salary</label>
+                  <input
+                    id="employeeBaseSalary"
+                    name="baseSalary"
+                    type="number"
+                    value={employeeFormData.baseSalary}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeMarketMidpoint">Market Midpoint</label>
+                  <input
+                    id="employeeMarketMidpoint"
+                    name="marketMidpoint"
+                    type="number"
+                    value={employeeFormData.marketMidpoint}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeWorkingDays">Working Days</label>
+                  <input
+                    id="employeeWorkingDays"
+                    name="workingDays"
+                    type="number"
+                    value={employeeFormData.workingDays}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="employeeAbsentDays">Absent Days</label>
+                  <input
+                    id="employeeAbsentDays"
+                    name="absentDays"
+                    type="number"
+                    value={employeeFormData.absentDays}
+                    onChange={handleEmployeeFormChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  disabled={isCreatingEmployee}
+                  className="button button-primary"
+                >
+                  {isCreatingEmployee ? "Creating..." : "Create Employee Profile"}
+                </button>
+              </div>
+            </form>
           </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="employeeFullName">Full Name</label>
-            <br />
-            <input
-              id="employeeFullName"
-              name="fullName"
-              type="text"
-              value={employeeFormData.fullName}
-              onChange={handleEmployeeFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="employeeDepartment">Department</label>
-            <br />
-            <input
-              id="employeeDepartment"
-              name="department"
-              type="text"
-              value={employeeFormData.department}
-              onChange={handleEmployeeFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="employeeJobTitle">Job Title</label>
-            <br />
-            <input
-              id="employeeJobTitle"
-              name="jobTitle"
-              type="text"
-              value={employeeFormData.jobTitle}
-              onChange={handleEmployeeFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="employeeBaseSalary">Base Salary</label>
-            <br />
-            <input
-              id="employeeBaseSalary"
-              name="baseSalary"
-              type="number"
-              value={employeeFormData.baseSalary}
-              onChange={handleEmployeeFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="employeeMarketMidpoint">Market Midpoint</label>
-            <br />
-            <input
-              id="employeeMarketMidpoint"
-              name="marketMidpoint"
-              type="number"
-              value={employeeFormData.marketMidpoint}
-              onChange={handleEmployeeFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="employeeWorkingDays">Working Days</label>
-            <br />
-            <input
-              id="employeeWorkingDays"
-              name="workingDays"
-              type="number"
-              value={employeeFormData.workingDays}
-              onChange={handleEmployeeFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <div>
-            <label htmlFor="employeeAbsentDays">Absent Days</label>
-            <br />
-            <input
-              id="employeeAbsentDays"
-              name="absentDays"
-              type="number"
-              value={employeeFormData.absentDays}
-              onChange={handleEmployeeFormChange}
-              required
-            />
-          </div>
-
-          <br />
-
-          <button type="submit" disabled={isCreatingEmployee}>
-            {isCreatingEmployee ? "Creating..." : "Create Employee Profile"}
-          </button>
-        </form>
+        </div>
       )}
 
-      <h3>Employee List</h3>
+      <div className="card">
+        <h3>Employee List</h3>
 
-      {employees.length === 0 ? (
-        <p>No employees found.</p>
-      ) : (
-        <ul>
-          {employees.map((employee) => (
-            <li key={employee.id}>
-              <strong>
-                <Link to={`/employees/${employee.id}`}>
-                  {employee.full_name}
-                </Link>
-              </strong>{" "}
-              - {employee.job_title} - {employee.department}
-            </li>
-          ))}
-        </ul>
-      )}
+        {employees.length === 0 ? (
+          <div className="empty-state">No employees found.</div>
+        ) : (
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Job Title</th>
+                  <th>Department</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employees.map((employee) => (
+                  <tr key={employee.id}>
+                    <td>
+                      <Link to={`/employees/${employee.id}`}>
+                        {employee.full_name}
+                      </Link>
+                    </td>
+                    <td>{employee.job_title}</td>
+                    <td>{employee.department}</td>
+                    <td>
+                      <Link
+                        to={`/employees/${employee.id}`}
+                        className="button button-secondary"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

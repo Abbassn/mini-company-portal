@@ -4,13 +4,22 @@
 
 body {
   margin: 0;
+  color: #111827;
   font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
 }
 
 a {
-  color: inherit;
+  color: #1d4ed8;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 section {
-  max-width: 900px;
+  width: 100%;
 }

@@ -3,9 +3,13 @@ import { Link } from "react-router-dom";
 function NotFoundPage() {
   return (
     <section>
-      <h2>Page Not Found</h2>
-      <p>The page you requested does not exist.</p>
-      <Link to="/dashboard">Go to dashboard</Link>
+      <div className="card">
+        <h2>Page Not Found</h2>
+        <p className="muted">The page you requested does not exist.</p>
+        <Link to="/dashboard" className="button button-primary">
+          Go to dashboard
+        </Link>
+      </div>
     </section>
   );
 }
