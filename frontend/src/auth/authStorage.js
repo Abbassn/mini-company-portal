@@ -26,5 +26,25 @@ export function clearAuthData() {
 }
 
 export function isAuthenticated() {
-  return Boolean(getToken());
+  const token = getToken();
+
+  if (!token) {
+    return false;
+  }
+
+  try {
+    const payloadBase64 = token.split(".")[1];
+    const payload = JSON.parse(atob(payloadBase64));
+    const currentTimeInSeconds = Date.now() / 1000;
+
+    if (payload.exp && payload.exp < currentTimeInSeconds) {
+      clearAuthData();
+      return false;
+    }
+
+    return true;
+  } catch {
+    clearAuthData();
+    return false;
+  }
 }
