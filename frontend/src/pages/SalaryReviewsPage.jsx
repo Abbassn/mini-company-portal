@@ -329,9 +329,11 @@ function SalaryReviewsPage() {
                       <span className="muted">{review.department}</span>
                     </td>
                     <td>{review.job_title}</td>
-                    <td>{review.old_salary}</td>
-                    <td>{review.proposed_salary}</td>
-                    <td>{review.review_calculation?.increasePercent ?? "N/A"}</td>
+                    <td className="number-cell">{review.old_salary}</td>
+                    <td className="number-cell">{review.proposed_salary}</td>
+                    <td className="number-cell">
+                      {review.review_calculation?.increasePercent ?? "N/A"}
+                    </td>
                     <td>
                       <span className={getStatusBadgeClass(review.status)}>
                         {review.status}
@@ -343,14 +345,14 @@ function SalaryReviewsPage() {
                           <button
                             type="button"
                             onClick={() => handleApprove(review.id)}
-                            className="button button-primary"
+                            className="button button-primary button-small"
                           >
                             Approve
                           </button>
                           <button
                             type="button"
                             onClick={() => handleReject(review.id)}
-                            className="button button-danger"
+                            className="button button-danger button-small"
                           >
                             Reject
                           </button>

@@ -309,9 +309,12 @@ function EmployeesPage() {
       {canManageEmployees && (
         <div className="grid">
           {canCreateUser && (
-            <div className="card">
+            <div className="card workflow-card">
               <form onSubmit={handleCreateUser} noValidate>
                 <h3>Create User</h3>
+                <p className="card-subtitle">
+                  Create login accounts for HR or employees.
+                </p>
 
                 <div className="form-grid">
                   <div className="form-group">
@@ -378,9 +381,12 @@ function EmployeesPage() {
             </div>
           )}
 
-          <div className="card">
+          <div className="card workflow-card">
             <form onSubmit={handleCreateEmployee} noValidate>
               <h3>Create Employee Profile</h3>
+              <p className="card-subtitle">
+                Attach company profile and salary data to a user.
+              </p>
 
               <div className="form-grid">
                 <div className="form-group">
@@ -486,7 +492,9 @@ function EmployeesPage() {
                   disabled={isCreatingEmployee}
                   className="button button-primary"
                 >
-                  {isCreatingEmployee ? "Creating..." : "Create Employee Profile"}
+                  {isCreatingEmployee
+                    ? "Creating..."
+                    : "Create Employee Profile"}
                 </button>
               </div>
             </form>
@@ -523,7 +531,7 @@ function EmployeesPage() {
                     <td>
                       <Link
                         to={`/employees/${employee.id}`}
-                        className="button button-secondary"
+                        className="button button-secondary button-small"
                       >
                         View
                       </Link>

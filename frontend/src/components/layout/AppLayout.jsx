@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { clearAuthData, getUser } from "../../auth/authStorage";
 
 function AppLayout() {
@@ -14,13 +14,19 @@ function AppLayout() {
   return (
     <div className="app">
       <header className="navbar">
-        <h1>Mini Company Portal</h1>
+        <div className="brand">
+          <div className="brand-mark">M</div>
+          <div>
+            <h1>Mini Company Portal</h1>
+            <p>People operations dashboard</p>
+          </div>
+        </div>
 
         <nav>
-          <Link to="/dashboard">Dashboard</Link>
-          {canViewEmployees && <Link to="/employees">Employees</Link>}
-          <Link to="/salary-reviews">Salary Reviews</Link>
-          <Link to="/profile">Profile</Link>
+          <NavLink to="/dashboard">Dashboard</NavLink>
+          {canViewEmployees && <NavLink to="/employees">Employees</NavLink>}
+          <NavLink to="/salary-reviews">Salary Reviews</NavLink>
+          <NavLink to="/profile">Profile</NavLink>
 
           <button type="button" onClick={handleLogout} className="logout-button">
             Logout

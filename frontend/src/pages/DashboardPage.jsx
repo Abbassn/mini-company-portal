@@ -25,19 +25,20 @@ function DashboardPage() {
     <section>
       <div className="page-header">
         <h2>Dashboard</h2>
+        {role && <span className="badge badge-role">{role}</span>}
         <p className="muted">
           A quick view of the actions available for your role.
         </p>
       </div>
 
-      {role && <h3>{role} Dashboard</h3>}
-
       {items.length > 0 ? (
         <div className="grid">
           {items.map((item) => (
-            <div className="card" key={item}>
+            <div className="card dashboard-card" key={item}>
               <h3>{item}</h3>
-              <p className="muted">Available from the portal navigation.</p>
+              <p className="muted">
+                Use the navigation above to continue this workflow.
+              </p>
             </div>
           ))}
         </div>

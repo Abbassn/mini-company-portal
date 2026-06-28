@@ -226,7 +226,7 @@ function EmployeeDetailsPage() {
         </div>
       )}
 
-      <div className="grid">
+      <div className="grid detail-grid">
         <div className="card">
           <h3>Basic Info</h3>
 

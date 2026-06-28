@@ -47,9 +47,17 @@ function LoginPage() {
 
   return (
     <section className="login-page">
+      <div className="login-intro">
+        <h1>Mini Company Portal</h1>
+        <p>
+          A focused workspace for employee records, salary reviews, and company
+          profile management.
+        </p>
+      </div>
+
       <div className="card login-card">
         <div className="page-header">
-          <h1>Login</h1>
+          <h1>Welcome back</h1>
           <p className="muted">Sign in to access the company portal.</p>
         </div>
 
