@@ -11,3 +11,15 @@ export async function getEmployeeById(id) {
 
   return response.data.data;
 }
+
+export async function createEmployee(employeeData) {
+  const response = await axiosClient.post("/employees", employeeData);
+
+  return response.data.data;
+}
+
+export async function updateEmployee(id, employeeData) {
+  const response = await axiosClient.patch(`/employees/${id}`, employeeData);
+
+  return response.data.data;
+}

@@ -1,32 +1,172 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getEmployeeById } from "../api/employeesApi";
+import { getEmployeeById, updateEmployee } from "../api/employeesApi";
+import { getUser } from "../auth/authStorage";
+
+function getErrorMessages(error, fallbackMessage) {
+  const backendData = error.response?.data;
+  const backendErrors = backendData?.errors;
+
+  if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+    return backendErrors.map((backendError) => {
+      if (typeof backendError === "string") {
+        return backendError;
+      }
+
+      if (backendError.field && backendError.message) {
+        return `${backendError.field}: ${backendError.message}`;
+      }
+
+      if (backendError.path && backendError.msg) {
+        return `${backendError.path}: ${backendError.msg}`;
+      }
+
+      return (
+        backendError.message ||
+        backendError.msg ||
+        JSON.stringify(backendError)
+      );
+    });
+  }
+
+  return [
+    backendData?.message ||
+      backendData?.error ||
+      fallbackMessage ||
+      "Something went wrong. Please try again.",
+  ];
+}
 
 function EmployeeDetailsPage() {
   const { id } = useParams();
+  const user = getUser();
+  const canUpdateEmployee = user?.role === "ADMIN" || user?.role === "HR";
 
   const [employee, setEmployee] = useState(null);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    department: "",
+    jobTitle: "",
+    marketMidpoint: "",
+    workingDays: "",
+    absentDays: "",
+  });
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const loadEmployee = useCallback(async () => {
+    const employeeData = await getEmployeeById(id);
+
+    setEmployee(employeeData);
+    setFormData({
+      fullName: employeeData.full_name || "",
+      department: employeeData.department || "",
+      jobTitle: employeeData.job_title || "",
+      marketMidpoint: employeeData.market_midpoint || "",
+      workingDays: employeeData.working_days || "",
+      absentDays: employeeData.absent_days ?? "",
+    });
+  }, [id]);
 
   useEffect(() => {
     async function fetchEmployee() {
+      setIsLoading(true);
+      setErrors([]);
+
       try {
-        const employeeData = await getEmployeeById(id);
-
-        setEmployee(employeeData);
+        await loadEmployee();
       } catch (error) {
-        const message =
-          error.response?.data?.message || "Failed to load employee.";
-
-        setError(message);
+        setErrors(getErrorMessages(error, "Failed to load employee."));
       } finally {
         setIsLoading(false);
       }
     }
 
     fetchEmployee();
-  }, [id]);
+  }, [loadEmployee]);
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  }
+
+  function validateUpdateForm() {
+    const validationErrors = [];
+    const marketMidpoint = Number(formData.marketMidpoint);
+    const workingDays = Number(formData.workingDays);
+    const absentDays = Number(formData.absentDays);
+
+    if (!formData.fullName.trim()) {
+      validationErrors.push("Full name cannot be empty.");
+    }
+
+    if (!formData.department.trim()) {
+      validationErrors.push("Department cannot be empty.");
+    }
+
+    if (!formData.jobTitle.trim()) {
+      validationErrors.push("Job title cannot be empty.");
+    }
+
+    if (!formData.marketMidpoint) {
+      validationErrors.push("Market midpoint is required.");
+    } else if (!Number.isFinite(marketMidpoint) || marketMidpoint <= 0) {
+      validationErrors.push("Market midpoint must be greater than 0.");
+    }
+
+    if (!formData.workingDays) {
+      validationErrors.push("Working days is required.");
+    } else if (!Number.isFinite(workingDays) || workingDays <= 0) {
+      validationErrors.push("Working days must be greater than 0.");
+    }
+
+    if (formData.absentDays === "") {
+      validationErrors.push("Absent days is required.");
+    } else if (!Number.isFinite(absentDays) || absentDays < 0) {
+      validationErrors.push("Absent days must be 0 or greater.");
+    }
+
+    return validationErrors;
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setErrors([]);
+    setSuccessMessage("");
+
+    const validationErrors = validateUpdateForm();
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await updateEmployee(id, {
+        fullName: formData.fullName.trim(),
+        department: formData.department.trim(),
+        jobTitle: formData.jobTitle.trim(),
+        marketMidpoint: Number(formData.marketMidpoint),
+        workingDays: Number(formData.workingDays),
+        absentDays: Number(formData.absentDays),
+      });
+
+      setSuccessMessage("Employee profile updated successfully.");
+      await loadEmployee();
+    } catch (error) {
+      setErrors(getErrorMessages(error, "Failed to update employee."));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -37,11 +177,13 @@ function EmployeeDetailsPage() {
     );
   }
 
-  if (error) {
+  if (!employee) {
     return (
       <section>
         <h2>Employee Details</h2>
-        <p>{error}</p>
+        {errors.map((error) => (
+          <p key={error}>{error}</p>
+        ))}
         <Link to="/employees">Back to employees</Link>
       </section>
     );
@@ -54,6 +196,16 @@ function EmployeeDetailsPage() {
       <p>
         <Link to="/employees">Back to employees</Link>
       </p>
+
+      {successMessage && <p>{successMessage}</p>}
+
+      {errors.length > 0 && (
+        <div>
+          {errors.map((error) => (
+            <p key={error}>{error}</p>
+          ))}
+        </div>
+      )}
 
       <h3>Basic Info</h3>
 
@@ -108,6 +260,106 @@ function EmployeeDetailsPage() {
         <strong>Final Salary:</strong>{" "}
         {employee.salary_calculation?.finalSalary ?? "N/A"}
       </p>
+
+      {canUpdateEmployee && (
+        <form onSubmit={handleSubmit} noValidate>
+          <h3>Update Employee Profile</h3>
+
+          <div>
+            <label htmlFor="fullName">Full Name</label>
+            <br />
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <br />
+
+          <div>
+            <label htmlFor="department">Department</label>
+            <br />
+            <input
+              id="department"
+              name="department"
+              type="text"
+              value={formData.department}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <br />
+
+          <div>
+            <label htmlFor="jobTitle">Job Title</label>
+            <br />
+            <input
+              id="jobTitle"
+              name="jobTitle"
+              type="text"
+              value={formData.jobTitle}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <br />
+
+          <div>
+            <label htmlFor="marketMidpoint">Market Midpoint</label>
+            <br />
+            <input
+              id="marketMidpoint"
+              name="marketMidpoint"
+              type="number"
+              value={formData.marketMidpoint}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <br />
+
+          <div>
+            <label htmlFor="workingDays">Working Days</label>
+            <br />
+            <input
+              id="workingDays"
+              name="workingDays"
+              type="number"
+              value={formData.workingDays}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <br />
+
+          <div>
+            <label htmlFor="absentDays">Absent Days</label>
+            <br />
+            <input
+              id="absentDays"
+              name="absentDays"
+              type="number"
+              value={formData.absentDays}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <br />
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Updating..." : "Update Employee Profile"}
+          </button>
+        </form>
+      )}
     </section>
   );
 }
