@@ -521,11 +521,7 @@ function EmployeesPage() {
               <tbody>
                 {employees.map((employee) => (
                   <tr key={employee.id}>
-                    <td>
-                      <Link to={`/employees/${employee.id}`}>
-                        {employee.full_name}
-                      </Link>
-                    </td>
+                    <td>{employee.full_name}</td>
                     <td>{employee.job_title}</td>
                     <td>{employee.department}</td>
                     <td>

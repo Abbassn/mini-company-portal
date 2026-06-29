@@ -1,4 +1,17 @@
+import { Link } from "react-router-dom";
 import { getUser } from "../auth/authStorage";
+
+const dashboardDestinations = {
+  "Manage employees": "/employees",
+  "Create users": "/employees",
+  "Review salary requests": "/salary-reviews",
+  "Approve or reject salary reviews": "/salary-reviews",
+  "View and manage employees": "/employees",
+  "Create salary reviews": "/salary-reviews",
+  "View salary reviews": "/salary-reviews",
+  "View profile": "/profile",
+  "View own salary reviews": "/salary-reviews",
+};
 
 function DashboardPage() {
   const user = getUser();
@@ -34,12 +47,16 @@ function DashboardPage() {
       {items.length > 0 ? (
         <div className="grid">
           {items.map((item) => (
-            <div className="card dashboard-card" key={item}>
+            <Link
+              className="card dashboard-card"
+              key={item}
+              to={dashboardDestinations[item]}
+            >
               <h3>{item}</h3>
               <p className="muted">
                 Use the navigation above to continue this workflow.
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (
